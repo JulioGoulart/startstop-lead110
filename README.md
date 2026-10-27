@@ -14,10 +14,9 @@ O ESP32 mede a velocidade do veículo por um sensor Hall e, com base nela, decid
 ## Estrutura do repositório
 
 
-firmware/
-  StartSTOP.ino                 Firmware do ESP32 (FreeRTOS)
-simulacao/
-  ciclo_prova_completa.m        Ciclo de velocidade da prova para o ADVISOR
+
+  StartSTOP.ino                 Código-fonte do ESP32
+  CYC_RIOV6.m        Ciclo de velocidade da prova para o ADVISOR
 README.md
 
 
