@@ -70,7 +70,9 @@ const float PULSOS_POR_REVOLUCAO = 2.0;
 const int ADC_THRESHOLD = 1000; 
 const int servoChannel = 0; 
 const int freq = 50;        
-const int resolution = 10;  
+const int resolution = 14;                 // 14 bits a 50 Hz => 16384 passos por ciclo de 20 ms
+const int PULSO_MIN_US = 500;              // 0°   
+const int PULSO_MAX_US = 2500;             // 180° 
 
 // Constantes de Rampa e Tempo
 const int DELAY_PASSO_RAMPA_MS = 300; 
@@ -145,7 +147,9 @@ void IRAM_ATTR handleINB() { handleSwitch(2); }
 
 // Funções do Servo 
 void acionarServo(int angle) {
-    int duty = map(angle, 0, 180, 51, 256); 
+    angle = constrain(angle, 0, 180);
+    long pulso_us = map(angle, 0, 180, PULSO_MIN_US, PULSO_MAX_US);
+    int duty = (int)((pulso_us * (1L << resolution)) / 20000L);
     ledcWrite(servoChannel, duty); 
 }
 
@@ -236,6 +240,8 @@ void TaskTelemetria(void * parameter) {
 
   // Loop principal da TaskTelemetria
   for (;;) {
+    wifiConectado  = (WiFi.status() == WL_CONNECTED);
+    blynkConectado = wifiConectado && Blynk.connected();
     if (wifiConectado) {
       if (blynkConectado) {
         Blynk.run();
@@ -446,6 +452,9 @@ void TaskEstados(void * parameter) {
 
       case ESTADO_FREIO_ACIONADO:
       { 
+        digitalWrite(LM_PIN, LOW); 
+        digitalWrite(DM_PIN, LOW); 
+        
         acionarServo(ANGULO_FECHADO);// garantir que o servo não está acelerando
         anguloAtualServo = ANGULO_FECHADO;
 
